@@ -49,14 +49,18 @@ class SubDB:
         if res.getcode() == 200:
             with open(os.path.splitext(path)[0] + '.srt', "wb") as sub_file:
                 sub_file.write(res.read())
-            print("Subtitles Found for: " + path)
+            print("[SubDB]Subtitles Found for: " + path)
 
-    def get_lang(self):
+    @staticmethod
+    def get_lang():
         """
         :return: List of available subtitle languages
         """
+        header = {
+            'User-Agent': 'SubDB/1.0 (PPY/0.1; https://projectpy.ml/)',
+        }
         url = 'http://api.thesubdb.com/?action=languages'
-        req = request.Request(url, headers=self.HEADERS)
+        req = request.Request(url, headers=header)
         res = request.urlopen(req)
         if res.getcode() == 200:
             lang = res.read().decode('utf-8').split(',')
@@ -132,9 +136,9 @@ class OpenSub:
                 with gzip.open(gzfile, 'rb') as f:
                     with open(os.path.splitext(path)[0] + '.srt', 'wb') as sub_file:
                         sub_file.write(f.read())
-                        print("Subtitles Found for: " + path)
+                        print("[OpenSubtitles]Subtitles Found for: " + path)
             except PermissionError:
-                print(f"Permision Error: when creating subtitles for {path}:")
+                print("Permision Error: when creating subtitles for {}:".format(path))
 
     def analyse_result(self, result):
         """
@@ -147,6 +151,7 @@ class OpenSub:
             if record.get('Score', 0) > score:
                 score = record.get('Score', 0)
                 dllink = record.get('SubDownloadLink')
+                print(record.get('sublanguageid'))
         return dllink
 
     def get_tags(self, path):
@@ -169,7 +174,7 @@ class OpenSub:
         """
         payload = {}
         payload['moviebytesize'] = str(os.path.getsize(path))
-        payload['sublanguageid'] = 'en,' + lang
+        payload['sublanguageid'] = lang
         tags = self.get_tags(path)
         if tags:
             payload['tags'] = ','.join(tags)
@@ -252,7 +257,7 @@ def recursive_search(directory, all_vids=[]):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('path', help='Path to the file or directory', type=str)
-    parser.add_argument('-l','--language', help='Language of subtitle as per ISO 639-1 codes',type=str)
+    parser.add_argument('-l','--language', help='Languages of subtitle as per ISO 639-1 codes',choices=SubDB.get_lang())
     args = parser.parse_args()
     path = args.path
     lang = 'en'
