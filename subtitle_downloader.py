@@ -134,7 +134,7 @@ class OpenSub:
                         sub_file.write(f.read())
                         print("Subtitles Found for: " + path)
             except PermissionError:
-                print(f"Permision Error: when creating subtitles for {path}:")
+                print("Permision Error: when creating subtitles for {}:".format(path))
 
     def analyse_result(self, result):
         """
