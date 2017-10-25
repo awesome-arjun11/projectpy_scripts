@@ -151,7 +151,6 @@ class OpenSub:
             if record.get('Score', 0) > score:
                 score = record.get('Score', 0)
                 dllink = record.get('SubDownloadLink')
-                print(record.get('sublanguageid'))
         return dllink
 
     def get_tags(self, path):
